@@ -17,6 +17,9 @@ class SearchResult(object):
         self.click = 0
         """A click on the search result. Can be either 1 (click) or 0 (no click)."""
 
+        """A search result can be either 1 (relevant) or 0 (not relevant) or -1 (unknown)."""
+        self.relevance = -1
+
         if click in [0, 1]:
             self.click = click
         else:

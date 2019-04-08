@@ -16,7 +16,7 @@ class YandexRelPredChallengeParser:
     """
 
     @staticmethod
-    def parse(sessions_filename, sessions_max=None):
+    def parse(sessions_filename, sessions_max=None, judgements_lookup=None):
         """
         Parses search sessions, formatted according to the Yandex Relevance Prediction Challenge (RPC)
         (http://imat-relpred.yandex.ru/en/datasets).
@@ -51,8 +51,11 @@ class YandexRelPredChallengeParser:
                 session = TaskCentricSearchSession(task, query)
 
                 for result in results:
-                    result = SearchResult(result, 0)
-                    session.web_results.append(result)
+                    search_result = SearchResult(result, 0)
+                    if judgements_lookup is not None:
+                        search_result.relevance = judgements_lookup(query, result)
+
+                    session.web_results.append(search_result)
 
                 sessions.append(session)
 

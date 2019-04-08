@@ -7,7 +7,6 @@ import json
 
 from pyclick.search_session import SearchResult
 
-
 __author__ = 'Ilya Markov'
 
 
@@ -61,3 +60,6 @@ class SearchSession(object):
 
     def __repr__(self):
         return str(self)
+
+    def __getitem__(self, item):
+        return self.web_results[item]
