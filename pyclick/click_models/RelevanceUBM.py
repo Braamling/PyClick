@@ -35,8 +35,8 @@ class RelevanceUBM(ClickModel):
     """The names of the UBM parameters."""
 
     def __init__(self, inference=EMInference()):
-        self.params = {self.param_names.attr: QueryDocumentParamContainer(UBMAttrEM),
-                       self.param_names.exam: RelevanceParamContainer.default(UBMExamEM)}
+        self.params = {self.param_names.attr: RelevanceParamContainer.default(UBMAttrEM),
+                       self.param_names.exam: RankPrevClickParamContainer.default(UBMExamEM)}
         self._inference = inference
 
     def get_conditional_click_probs(self, search_session):
@@ -57,19 +57,26 @@ class RelevanceUBM(ClickModel):
         return click_probs
 
     def get_full_click_probs(self, search_session):
+        # TODO this method is not correct
         click_probs = []
 
         for rank, result in enumerate(search_session.web_results):
             click_prob = 0
 
-            for relevance in [-1, 0, 1]:
-                click_prob += self._get_click_prob(search_session, rank, relevance)
+            for rank_prev_click in range(-1, rank):
+                # Compute probability that there is no clicks between rank_prev_click and rank
+                no_click_between = 1
+                for rank_between in range(rank_prev_click + 1, rank):
+                    no_click_between *= 1 - self._get_click_prob(search_session, rank_between, rank_prev_click, -1)
+
+                click_prob += (click_probs[rank_prev_click] if rank_prev_click >= 0 else 1) * \
+                              no_click_between * self._get_click_prob(search_session, rank, rank_prev_click, -1)
 
             click_probs.append(click_prob)
 
         return click_probs
 
-    def _get_click_prob(self, search_session, rank, relevance):
+    def _get_click_prob(self, search_session, rank, rank_prev_click, relevance):
         """
         Returns the click probability for a search result at the given rank in the given search session,
         where the previously clicked result was at prev_clicked_rank.
@@ -79,8 +86,8 @@ class RelevanceUBM(ClickModel):
 
         :returns: The click probability for a given search result.
         """
-        attr = self.params[self.param_names.attr].get(search_session.query, search_session.web_results[rank].id).value()
-        exam = self.params[self.param_names.exam].get(relevance).value()
+        attr = self.params[self.param_names.attr].get(relevance).value()
+        exam = self.params[self.param_names.exam].get(rank, rank_prev_click).value()
         return attr * exam
 
 
