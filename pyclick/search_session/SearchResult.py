@@ -11,14 +11,14 @@ class SearchResult(object):
     A search result, which contains a unique identifier and user interactions with the result.
     """
 
-    def __init__(self, search_result_id, click):
+    def __init__(self, search_result_id, click, relevance=-1):
         self.id = search_result_id
         """An identifier of the search result."""
         self.click = 0
         """A click on the search result. Can be either 1 (click) or 0 (no click)."""
 
         """A search result can be either 1 (relevant) or 0 (not relevant) or -1 (unknown)."""
-        self.relevance = -1
+        self.relevance = relevance
 
         if click in [0, 1]:
             self.click = click

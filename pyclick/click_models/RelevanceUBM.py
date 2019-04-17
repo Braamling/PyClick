@@ -39,7 +39,7 @@ class RelevanceUBM(ClickModel):
                        self.param_names.exam: RankPrevClickParamContainer.default(UBMExamEM)}
         self._inference = inference
 
-    def get_conditional_click_probs(self, search_session):
+    def get_click_probs(self, search_session, conditional=False):
         session_params = self.get_session_params(search_session)
         click_probs = []
 
@@ -47,7 +47,7 @@ class RelevanceUBM(ClickModel):
             attr = session_params[rank][self.param_names.attr].value()
             exam = session_params[rank][self.param_names.exam].value()
 
-            if result.click:
+            if not conditional or result.click:
                 click_prob = attr * exam
             else:
                 click_prob = 1 - attr * exam
@@ -55,6 +55,9 @@ class RelevanceUBM(ClickModel):
             click_probs.append(click_prob)
 
         return click_probs
+
+    def get_conditional_click_probs(self, search_session):
+        return self.get_click_probs(search_session, conditional=True)
 
     def get_full_click_probs(self, search_session):
         # TODO this method is not correct
