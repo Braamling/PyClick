@@ -10,8 +10,8 @@ import math
 from pyclick.click_models.ClickModel import ClickModel
 from pyclick.click_models.Inference import EMInference
 from pyclick.click_models.Param import ParamEM, ParamStatic
-from pyclick.click_models.ParamContainer import QueryDocumentParamContainer, SingleParamContainer
-
+from pyclick.click_models.ParamContainer import QueryDocumentParamContainer, \
+    SingleParamContainer, RelevanceParamContainer
 
 __author__ = 'Ilya Markov, Aleksandr Chuklin'
 
@@ -264,3 +264,14 @@ class DBNContEM(ParamEM):
                 factor(*p) for p in itertools.product([0, 1], repeat=3))
         self._numerator += exam_prob(1)
         self._denominator += sum(exam_prob(x) for x in [0, 1])
+
+
+class RelDBN(DBN):
+    def __init__(self, inference=EMInference()):
+        self.params = {self.param_names.attr: RelevanceParamContainer(DBNAttrEM),
+                       self.param_names.sat: RelevanceParamContainer(DBNSatEM),
+                       self.param_names.cont: SingleParamContainer(DBNContEM)}
+        self._inference = inference
+
+    def get_click_probs(self, search_session):
+                return self.get_full_click_probs(search_session)

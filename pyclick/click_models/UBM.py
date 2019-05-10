@@ -8,8 +8,8 @@ from enum import Enum
 from pyclick.click_models.ClickModel import ClickModel
 from pyclick.click_models.Inference import EMInference
 from pyclick.click_models.Param import ParamEM
-from pyclick.click_models.ParamContainer import QueryDocumentParamContainer, RankPrevClickParamContainer
-
+from pyclick.click_models.ParamContainer import QueryDocumentParamContainer, \
+    RankPrevClickParamContainer, RelevanceParamContainer
 
 __author__ = 'Ilya Markov'
 
@@ -93,6 +93,34 @@ class UBM(ClickModel):
         exam = self.params[self.param_names.exam].get(rank, rank_prev_click).value()
         return attr * exam
 
+class RelUBM(UBM):
+    """
+    RelUBM changes uses the document relevance instead of query document pair
+    parameter as the attr parameter.
+    """
+    def __init__(self, inference=EMInference()):
+        UBM.__init__(self)
+        self.params = {self.param_names.attr: RelevanceParamContainer.default(UBMAttrEM),
+                       self.param_names.exam: RankPrevClickParamContainer.default(UBMExamEM)}
+        self._inference = inference
+
+    def get_click_probs(self, search_session):
+        """
+        This method calculates the click probability at each rank according
+        to the model parameters.
+        """
+        session_params = self.get_session_params(search_session)
+        click_probs = []
+
+        for rank, result in enumerate(search_session.web_results):
+            attr = session_params[rank][self.param_names.attr].value()
+            exam = session_params[rank][self.param_names.exam].value()
+
+            click_prob = attr * exam
+
+            click_probs.append(click_prob)
+
+        return click_probs
 
 class UBMAttrEM(ParamEM):
     """

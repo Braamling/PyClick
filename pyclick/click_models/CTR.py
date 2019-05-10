@@ -8,7 +8,8 @@ from enum import Enum
 from pyclick.click_models.ClickModel import ClickModel
 from pyclick.click_models.Inference import MLEInference
 from pyclick.click_models.Param import ParamMLE
-from pyclick.click_models.ParamContainer import QueryDocumentParamContainer, RankParamContainer, SingleParamContainer
+from pyclick.click_models.ParamContainer import QueryDocumentParamContainer, \
+    RankParamContainer, SingleParamContainer, RelevanceParamContainer
 
 __author__ = 'Ilya Markov, Luka Stout'
 
@@ -71,6 +72,25 @@ class DCTR(CTR):
 
     def _init_ctr_params(self):
         return QueryDocumentParamContainer(CTRParamMLE)
+
+    def _get_ctr_param(self, search_session, rank):
+        return self.params[self.param_names.ctr].get(search_session.query, search_session.web_results[rank].id)
+
+
+class RelCTR(CTR):
+    """
+    The Relevance CTR click model (DCTR),
+    where each attractiveness parameter depends on a query and a search result.
+    """
+
+    def predict_relevance(self, query, search_result):
+        return self.params[self.param_names.ctr].get(query, search_result).value()
+
+    def _init_ctr_params(self):
+        return RelevanceParamContainer(CTRParamMLE)
+
+    def get_click_probs(self, search_session):
+        return self.get_full_click_probs(search_session)
 
     def _get_ctr_param(self, search_session, rank):
         return self.params[self.param_names.ctr].get(search_session.query, search_session.web_results[rank].id)

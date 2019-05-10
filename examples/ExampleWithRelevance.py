@@ -9,15 +9,14 @@ import sys
 import time
 
 from pyclick.click_models.Evaluation import LogLikelihood, Perplexity
-from pyclick.click_models.UBM import UBM
-from pyclick.click_models.DBN import DBN
+from pyclick.click_models.UBM import UBM, RelUBM
+from pyclick.click_models.DBN import DBN, RelDBN
 from pyclick.click_models.SDBN import SDBN
 from pyclick.click_models.DCM import DCM
 from pyclick.click_models.CCM import CCM
-from pyclick.click_models.CTR import DCTR, RCTR, GCTR
+from pyclick.click_models.CTR import DCTR, RCTR, GCTR, RelCTR
 from pyclick.click_models.CM import CM
 from pyclick.click_models.PBM import PBM
-from pyclick.click_models.RelevanceUBM import RelevanceUBM
 from pyclick.utils.Hdf5ResultsWriter import Hdf5ResultsWriter
 from pyclick.utils.Utils import Utils
 from pyclick.utils.YandexRelPredChallengeParser import YandexRelPredChallengeParser
@@ -37,7 +36,8 @@ def train():
         print "\tclick_model - the name of a click model to use."
         print "\tdataset - the path to the dataset from Yandex Relevance Prediction Challenge"
         print "\trelevance - the path to the relevance judgments from Yandex Relevance Prediction Challenge"
-        print "\tsessions_max - the maximum number of one-query search sessions to consider"
+        print "\tsessions_max - the maximum number of one-query search sessions to consider training"
+        print "\ttest_sessions_max - the maximum number of one-query serach sessions to consider for testing"
         print ""
         sys.exit(1)
 
@@ -45,7 +45,7 @@ def train():
 
     train_sessions = YandexRelPredChallengeParserHdf5().parse(args.train_dataset, args.sessions_max)
     # This is still hardcoded, but should be changed to a fixed length test dataset
-    test_sessions = YandexRelPredChallengeParserHdf5().parse(args.test_dataset, sessions_max=1000000, first_session=1000000)
+    test_sessions = YandexRelPredChallengeParserHdf5().parse(args.test_dataset, sessions_max=args.test_sessions_max)
 
     print "-------------------------------"
     print "Training on %d search sessions." % (len(train_sessions))
@@ -87,7 +87,9 @@ if __name__ == '__main__':
     parser.add_argument('--test_dataset', type=str, default=None,
                         help="the path to the dataset from Yandex Relevance Prediction Challenge")
     parser.add_argument('--sessions_max', type=int, default=None,
-                        help="the maximum number of one-query search sessions to consider")
+                        help="the maximum number of one-query search sessions to consider for training")
+    parser.add_argument('--test_sessions_max', type=int, default=None,
+                        help="the maximum number of one-query search sessions to consider for testing")
     parser.add_argument('--test_predictions_file', type=str, default=None,
                         help="A hdf5 file path to store the output for the test dataset.")
     args = parser.parse_args()

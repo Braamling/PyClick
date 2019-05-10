@@ -21,7 +21,6 @@ class YandexRelPredChallengeParserHdf5:
         :param first_session:
         :return:
         """
-
         with h5py.File(sessions_filename, "r") as sessions_file:
 
             sessions = []
