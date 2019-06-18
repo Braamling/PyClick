@@ -8,8 +8,8 @@ from enum import Enum
 from pyclick.click_models.ClickModel import ClickModel
 from pyclick.click_models.Inference import MLEInference
 from pyclick.click_models.Param import ParamMLE
-from pyclick.click_models.ParamContainer import QueryDocumentParamContainer, RankParamContainer
-
+from pyclick.click_models.ParamContainer import QueryDocumentParamContainer, \
+    RankParamContainer, RelevanceParamContainer
 
 __author__ = 'Ilya Markov'
 
@@ -74,6 +74,16 @@ class DCM(ClickModel):
 
     def predict_relevance(self, query, search_result):
         return self.params[self.param_names.attr].get(query, search_result).value()
+
+class RelDCM(DCM):
+
+    def __init__(self):
+        self.params = {self.param_names.attr: RelevanceParamContainer.default(DCMAttrMLE),
+                       self.param_names.cont: RankParamContainer.default(DCMContMLE)}
+        self._inference = MLEInference()
+
+    def get_click_probs(self, search_session):
+        return self.get_full_click_probs(search_session)
 
 
 class DCMAttrMLE(ParamMLE):

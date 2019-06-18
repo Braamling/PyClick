@@ -122,6 +122,21 @@ class RelUBM(UBM):
 
         return click_probs
 
+    def _get_click_prob(self, search_session, rank, rank_prev_click):
+        """
+        Returns the click probability for a search result at the given rank in the given search session,
+        where the previously clicked result was at prev_clicked_rank.
+
+        :param search_session: The current search session.
+        :param rank: The rank of a search result.
+        :param rank_prev_click: The rank of the previously clicked search result.
+
+        :returns: The click probability for a given search result.
+        """
+        attr = self.params[self.param_names.attr].get(search_session.web_results[rank].relevance).value()
+        exam = self.params[self.param_names.exam].get(rank, rank_prev_click).value()
+        return attr * exam
+
 class UBMAttrEM(ParamEM):
     """
     The attractiveness parameter of the UBM model.

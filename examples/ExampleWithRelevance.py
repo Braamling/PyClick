@@ -12,7 +12,7 @@ from pyclick.click_models.Evaluation import LogLikelihood, Perplexity
 from pyclick.click_models.UBM import UBM, RelUBM
 from pyclick.click_models.DBN import DBN, RelDBN
 from pyclick.click_models.SDBN import SDBN
-from pyclick.click_models.DCM import DCM
+from pyclick.click_models.DCM import DCM, RelDCM
 from pyclick.click_models.CCM import CCM
 from pyclick.click_models.CTR import DCTR, RCTR, GCTR, RelCTR
 from pyclick.click_models.CM import CM
@@ -61,6 +61,7 @@ def train():
     print "-------------------------------"
 
     loglikelihood = LogLikelihood()
+    perplexity = Perplexity()
 
     start = time.time()
 
@@ -72,10 +73,15 @@ def train():
     print "\tWritten test results to %s; time: %i secs" % (args.test_predictions_file, end - start)
 
     start = time.time()
-
     ll_value = loglikelihood.evaluate(click_model, test_sessions)
     end = time.time()
     print "\tlog-likelihood: %f; time: %i secs" % (ll_value, end - start)
+
+
+    start = time.time()
+    perp_value = perplexity.evaluate(click_model, test_sessions)[0]
+    end = time.time()
+    print "\tperplexity: %f; time: %i secs" % (perp_value, end - start)
 
 
 
