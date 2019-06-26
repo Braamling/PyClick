@@ -85,6 +85,15 @@ class RelDCM(DCM):
     def get_click_probs(self, search_session):
         return self.get_full_click_probs(search_session)
 
+class DoubleRelDCM(DCM):
+
+    def __init__(self):
+        self.params = {self.param_names.attr: RelevanceParamContainer.default(DCMAttrMLE),
+                       self.param_names.cont: RelevanceParamContainer.default(DCMContMLE)}
+        self._inference = MLEInference()
+
+    def get_click_probs(self, search_session):
+        return self.get_full_click_probs(search_session)
 
 class DCMAttrMLE(ParamMLE):
     """

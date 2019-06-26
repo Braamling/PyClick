@@ -12,7 +12,7 @@ from pyclick.click_models.Evaluation import LogLikelihood, Perplexity
 from pyclick.click_models.UBM import UBM, RelUBM
 from pyclick.click_models.DBN import DBN, RelDBN
 from pyclick.click_models.SDBN import SDBN
-from pyclick.click_models.DCM import DCM, RelDCM
+from pyclick.click_models.DCM import DCM, RelDCM, DoubleRelDCM
 from pyclick.click_models.CCM import CCM
 from pyclick.click_models.CTR import DCTR, RCTR, GCTR, RelCTR
 from pyclick.click_models.CM import CM
